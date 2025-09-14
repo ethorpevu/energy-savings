@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Electricity Emissions Calculator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Business Electricity Emissions Calculator</h1>
+            <p>Understand your Scope 2 emissions and discover cost-saving opportunities</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="input">Input Data</button>
+            <button class="tab-btn" data-tab="results">Results</button>
+            <button class="tab-btn" data-tab="recommendations">Recommendations</button>
+        </div>
+
+        <div class="tab-content active" id="input">
+            <h2>Business Information</h2>
+            <form id="businessForm">
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="industry">Industry</label>
+                    <select id="industry" required>
+                        <option value="">Select Industry</option>
+                        <option value="retail">Retail</option>
+                        <option value="office">Office/Commercial</option>
+                        <option value="manufacturing">Manufacturing</option>
+                        <option value="hospitality">Hospitality</option>
+                        <option value="healthcare">Healthcare</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="location">Location (ZIP Code)</label>
+                    <input type="text" id="location" pattern="[0-9]{5}" required>
+                    <small>Used to determine local grid emissions factor</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="buildingSize">Building Size (sq ft)</label>
+                    <input type="number" id="buildingSize" min="1" required>
+                </div>
+                
+                <h2>Monthly Electricity Usage</h2>
+                <p>Enter your electricity consumption for recent months:</p>
+                
+                <div id="usageEntries">
+                    <div class="usage-entry">
+                        <div class="form-group">
+                            <label>Month</label>
+                            <select class="month" required>
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8">August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Year</label>
+                            <input type="number" class="year" value="2023" min="2000" max="2030" required>
+                        </div>
+                        <div class="form-group">
+                            <label>kWh Used</label>
+                            <input type="number" class="kwh" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Cost ($)</label>
+                            <input type="number" class="cost" min="0" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="button" id="addMonthBtn">+ Add Another Month</button>
+                
+                <h2>Equipment Information</h2>
+                <p>Select major electricity consumers in your facility:</p>
+                
+                <div class="equipment-options">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hvac" name="equipment" value="hvac">
+                        <label for="hvac">HVAC System</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="lighting" name="equipment" value="lighting">
+                        <label for="lighting">Lighting</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="office" name="equipment" value="office">
+                        <label for="office">Office Equipment</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="refrigeration" name="equipment" value="refrigeration">
+                        <label for="refrigeration">Refrigeration</label>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="manufacturing" name="equipment" value="manufacturing">
+                        <label for="manufacturing">Manufacturing Equipment</label>
+                    </div>
+                </div>
+                
+                <button type="submit" id="calculateBtn">Calculate Emissions</button>
+            </form>
+        </div>
+
+        <div class="tab-content" id="results">
+            <h2>Emissions Analysis</h2>
+            <div id="loadingResults" style="display: none;">
+                <p>Calculating results...</p>
+            </div>
+            <div id="resultsContent" style="display: none;">
+                <div class="results-summary">
+                    <div class="result-card">
+                        <h3>Annual Scope 2 Emissions</h3>
+                        <div class="result-value" id="annualEmissions">-</div>
+                        <div class="result-unit">metric tons CO₂e</div>
+                    </div>
+                    <div class="result-card">
+                        <h3>Monthly Average</h3>
+                        <div class="result-value" id="monthlyEmissions">-</div>
+                        <div class="result-unit">metric tons CO₂e</div>
+                    </div>
+                    <div class="result-card">
+                        <h3>Emissions Intensity</h3>
+                        <div class="result-value" id="emissionsIntensity">-</div>
+                        <div class="result-unit">kg CO₂e/sq ft</div>
+                    </div>
+                </div>
+                
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <h3>Monthly Emissions Trend</h3>
+                        <canvas id="emissionsChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Cost vs. Emissions</h3>
+                        <canvas id="costEmissionsChart"></canvas>
+                    </div>
+                </div>
+                
+                <button id="viewRecommendationsBtn" class="primary-btn">View Cost-Saving Recommendations</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="recommendations">
+            <h2>Recommended Energy-Saving Measures</h2>
+            <div id="recommendationsContainer">
+                <!-- Recommendations will be populated here -->
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
